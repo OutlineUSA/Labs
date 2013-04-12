@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+    <link rel="stylesheet" type="text/css" href="css/d3.parcoords.css">
+    <link rel="stylesheet" type="text/css" href="css/parallel.css">
+</head>
+<body>
+    <div class="parcoords" id='example1'> </div>
+
+<script src='/static/js/lib/underscore.js'></script>
+<script src="/static/js/lib/underscore.math.js"></script>
+<script src='/static/js/lib/d3.js'></script>
+<script src='/static/js/lib/d3.parcoords.js'></script>
+<script>
+// interact with this variable from a javascript console
+// color scale for zscores
+var zcolorscale = d3.scale.linear()
+    .domain([-2,-0.5,0.5,2])
+    .range(["brown", "#999", "#999", "steelblue"])
+    .interpolate(d3.interpolateLab);
+
+var paracoordsChart = null;
+
+// load csv file and create the chart
+d3.csv('data/outline.csv', function(data) {
+    paracoordsChart = d3.parcoords()("#example1")
+        .data(data)
+        .mode("queue") // progressive rendering
+        .render()
+        .alpha(0.5)
+        .shadows()
+        .reorderable()
+        .brushable()    // enable brushing
+        .interactive()    // command line mode
+
+    change_color("weight (lb)");
+
+    // click label to activate coloring
+    paracoordsChart.svg.selectAll(".dimension")
+        .on("click", change_color)
+        .selectAll(".label")
+        .style("font-size", "14px");
+});
+
+// update color 
+function change_color(dimension) { 
+    paracoordsChart.svg.selectAll(".dimension")
+        .style("font-weight", "normal")
+        .filter(function(d) { return d == dimension; })
+        .style("font-weight", "bold")
+
+    paracoordsChart.color(zcolor(paracoordsChart.data(),dimension)).render()
+}
+
+// return color function based on plot and dimension
+function zcolor(col, dimension) {
+    var z = zscore(_(col).pluck(dimension).map(parseFloat))
+    return function(d) { return zcolorscale(z(d[dimension])) }
+};
+
+// color by zscore
+function zscore(col) {
+    var n = col.length,
+            mean = _(col).mean(),
+            sigma = _(col).stdDeviation();
+    return function(d) {
+        return (d-mean)/sigma;
+    };
+};
+
+
+</script>
+</body>
+</html>

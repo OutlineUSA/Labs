@@ -39,6 +39,7 @@
       var parcoords = d3.parcoords()("#example")
         .data(data)
         .alpha(0.4)
+        .shadows()
         .mode("queue") // progressive rendering
         .height(d3.max([document.body.clientHeight-326, 220]))
         .margin({

@@ -1,0 +1,106 @@
+@-webkit-keyframes blink {
+  from {
+    opacity: 0.25; }
+
+  to {
+    opacity: 0.75; } }
+
+@-moz-keyframes blink {
+  from {
+    opacity: 0.25; }
+
+  to {
+    opacity: 0.75; } }
+
+@-ms-keyframes blink {
+  from {
+    opacity: 0.25; }
+
+  to {
+    opacity: 0.75; } }
+
+@keyframes blink {
+  from {
+    opacity: 0.25; }
+
+  to {
+    opacity: 0.75; } }
+
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased; }
+
+body {
+  background: white;
+  color: black;
+  font-family: "neosans";
+  font-size: 16px;
+  padding: 0 !important;
+  overflow-x: hidden; }
+
+a {
+  color: inherit;
+  text-decoration: none; }
+  a:hover {
+    text-decoration: underline; }
+
+input[type="text"], input[type="email"], input[type="submit"] {
+  font: inherit;
+  display: block;
+  -webkit-appearance: none;
+  border-radius: 0;
+  height: 1em;
+  outline: none !important; }
+
+#top {
+  background: #5a6064;
+  padding: 100px 100px;
+  color: white;
+  text-align: center; }
+  #top #branding {
+    font-size: 46px; }
+    #top #branding span {
+      font-weight: 200; }
+
+#projects {
+  padding: 40px; }
+  #projects .project {
+    width: 300px;
+    margin: 20px;
+    outline: 1px solid rgba(0, 0, 0, 0.15);
+    margin-left: auto;
+    margin-right: auto;
+    outline-offset: -1px; }
+    #projects .project .project_top {
+      position: relative;
+      outline: 1px solid rgba(0, 0, 0, 0.15);
+      outline-offset: -1px; }
+      #projects .project .project_top:before {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        background: url("../../img/fade.png") repeat-x bottom;
+        z-index: 1;
+        content: ""; }
+      #projects .project .project_top .title {
+        position: absolute;
+        bottom: 17px;
+        left: 20px;
+        right: 20px;
+        color: white;
+        z-index: 2;
+        font-size: 20px; }
+      #projects .project .project_top .avatar img {
+        display: block;
+        width: 300px; }
+    #projects .project .project_info {
+      padding: 14px 20px;
+      color: gray; }
+
+#bottom {
+  text-align: center;
+  color: gray; }

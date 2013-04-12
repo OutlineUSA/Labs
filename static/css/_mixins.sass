@@ -1,0 +1,148 @@
+$grayLight: #ccc
+$placeholderText: $grayLight
+
+@mixin keyframes($name)
+  @-webkit-keyframes #{$name}
+    @content
+  @-moz-keyframes #{$name}
+    @content
+  @-ms-keyframes #{$name}
+    @content
+  @keyframes #{$name}
+    @content
+
+@include keyframes(blink)
+  from
+    opacity: .25
+  to
+    opacity: .75
+
+@mixin keyframes-tag($name, $time, $function: ease-in-out, $alternate: normal)
+  @each $prefix in -webkit-, -moz-, -ms-
+    #{$prefix}animation: $name $time $alternate $function infinite
+
+@mixin placeholder($color: $placeholderText)
+  &:-moz-placeholder
+    color: $color
+  &:-ms-input-placeholder
+    color: $color
+  &::-webkit-input-placeholder
+    color: $color
+
+@mixin textHide
+  text-index: -10000px
+  overflow: hidden
+  font-size: 0
+  color: transparent
+
+@mixin background-size($val)
+  -webkit-background-size: $val
+  -moz-background-size: $val
+  background-size: $val
+
+// Clearfix
+// --------
+// For clearing floats like a boss h5bp.com/q
+@mixin clearfix
+  *zoom: 1
+  &:before,
+  &:after
+    display: table
+    content: "" 
+    // Fixes Opera/contenteditable bug:
+    // http://nicolasgallagher.com/micro-clearfix-hack/#comment-36952
+    line-height: 0
+  &:after
+    clear: both
+
+// Navbar vertical align
+// -------------------------
+// Vertically center elements in the navbar.
+// Example: an element has a height of 30px, so write out `.navbarVerticalAlign(30px);` to calculate the appropriate top margin.
+@mixin navbarVerticalAlign($elementHeight)
+  margin-top: ($navbarHeight - $elementHeight) / 2
+
+@mixin border-radius($r)
+  -webkit-border-radius: $r
+  -moz-border-radius: $r
+  -o-border-radius: $r
+  border-radius: $r
+
+@mixin rotate($angle)
+  -webkit-transform: rotate($angle)
+  -moz-transform: rotate($angle)
+  -o-transform: rotate($angle)
+  transform: rotate($angle)
+
+@mixin transition($property, $duration)
+  -webkit-transition: $property $duration
+  -moz-transition: $property $duration
+  -o-transition: $property $duration
+  transition: $property $duration
+
+@mixin button
+  @include border-radius(0px)
+  padding: .2em .5em
+  color: #fff
+  background: #888
+  cursor: pointer
+  &:hover
+    background: #999
+  &:active
+    background: #777
+
+@mixin blue-button
+  @include button
+  background-color: $blue
+  &:hover
+    background-color: $blue * 1.1
+  &:active
+    background-color: $blue * .8
+
+@mixin underline-box
+  position: relative
+  input, textarea
+    border: none
+    background: transparent
+    padding-bottom: 3px
+  &:before
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    border: 1px solid $bg * .8
+    content: ''
+    display: block
+    pointer-events: none
+    border-top: none
+    height: 3px
+    border-radius: 1px
+
+@mixin gradient_3($c1, $c2, $c3)
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, $c1), color-stop(.5, $c2), color-stop(1, $c3))
+  background-image: -webkit-linear-gradient(top, $c1 0%, $c2 50%, $c3 100%)
+  background-image: -moz-linear-gradient(top, $c1 0%, $c2 50%, $c3 100%)
+  background-image: -o-linear-gradient(top, $c1 0%, $c2 50%, $c3 100%)
+  background-image: -ms-linear-gradient(top, $c1 0%, $c2 50%, $c3 100%)
+  filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=@{c1}, endColorstr=@{c3})"
+
+@mixin gradient_only($c1, $c2)
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, $c1), color-stop(1, $c2))
+  background-image: -webkit-linear-gradient(top, $c1 0%, $c2 100%)
+  background-image: -moz-linear-gradient(top, $c1 0%, $c2 100%)
+  background-image: -o-linear-gradient(top, $c1 0%, $c2 100%)
+  background-image: -ms-linear-gradient(top, $c1 0%, $c2 100%)
+  filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=@{c1}, endColorstr=@{c2})"
+
+@mixin gradient($c1, $c2)
+  background-color: $c1
+  @include gradient_only($c1, $c2)
+
+@mixin standard_gradient($c, $amount: 10%)
+  $c1: lighten($c, $amount * .5)
+  $c2: darken( $c, $amount * .5)
+  @include gradient($c1, $c2)
+
+
+
+

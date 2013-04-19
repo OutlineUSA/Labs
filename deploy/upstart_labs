@@ -37,7 +37,7 @@ script
     #Store this process' ID
     echo $$ > /var/run/upstart_labs.pid
     #Start up the node server and log output to /var/log/gunicorn_labs.log
-    exec sudo -u root sh -c "/home/labs/Code/Labs/deploy/run_gunicorn.sh >> /var/log/gunicorn/labs.log 2>&1"
+    exec sudo -u root sh -c "/home/outline/Code/Labs/deploy/run_gunicorn.sh >> /var/log/gunicorn/labs.log 2>&1"
 end script
 
 #----------------------------------------

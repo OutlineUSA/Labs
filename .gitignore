@@ -1,4 +1,4 @@
 *.swp
 static/css/.sass-cache
-heart/venv
+venv
 *.pyc

@@ -1,0 +1,60 @@
+#/etc/init/labs.conf
+
+#-----------------------------------------------------------------------------
+#upstart_labs
+#------------
+#   This is a startup script which will be used to manage the gunicorn labs
+#       To start the service, simply call "start labs"
+#       To stop the service, simply call "stop labs"
+#
+#   Monit is used to monitor that the PID of this service (node) is constantly
+#       running.
+#
+#   NOTE: PLACE THIS FILE IN /etc/init/labs.conf
+#
+#
+#   To start / restart / stop:
+#       sudo start labs
+#       sudo restart labs
+#       sudo stop labs
+#
+#-----------------------------------------------------------------------------
+#----------------------------------------
+#Some meta
+#----------------------------------------
+description "Outline Gunicorn startup script"
+
+#----------------------------------------
+#Start when server starts, shutdown when server shuts down
+#----------------------------------------
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on shutdown
+
+#----------------------------------------
+#Script that is run when start is called
+#----------------------------------------
+script
+    #Store this process' ID
+    echo $$ > /var/run/upstart_labs.pid
+    #Start up the node server and log output to /var/log/gunicorn_labs.log
+    exec sudo -u root sh -c "/home/labs/Code/Labs/deploy/run_gunicorn.sh >> /var/log/gunicorn/labs.log 2>&1"
+end script
+
+#----------------------------------------
+#This gets executed before start is called
+#----------------------------------------
+pre-start script
+    #Log start time
+    echo "[`date '+%Y-%m-%dT%T'`] Gunicorn Outline Starting" >> /var/log/gunicorn/labs.log
+end script
+
+#----------------------------------------
+#This gets executed before stop is called
+#----------------------------------------
+pre-stop script
+    #Remove .pid file we created above
+    rm /var/run/upstart_labs.pid
+    #Log stop time
+    echo "[`date '+%Y-%m-%dT%T'`] Gunicorn Outline Stopping " >> /var/log/gunicorn/labs.log
+end script
+

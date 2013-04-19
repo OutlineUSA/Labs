@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="static/css/lib/html5reset.css">
 <link rel="stylesheet" href="static/css/compiled/main.css">
 <link rel="stylesheet" href="static/resources/neosans/stylesheet.css">
-<script src="static/js/vendor/modernizr-2.6.2.min.js"></script>
+<script src="static/js/lib/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
   <!--[if lt IE 7]>
@@ -41,14 +41,18 @@
         </div>
       </div>
     </div>
+
     <div id="bottom">
+      <div class="like">
+        <div class="outline-like-btn" data-url="/"></div>
+      </div>
       <p><a href="http://outline.com/" target='_blank'>Outline</a> | <a href="https://github.com/outlineusa" target='_blank'>Github</a></p>
     </div>
 
   </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="/static/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script>window.jQuery || document.write('<script src="/static/js/lib/jquery-1.9.1.min.js"><\/script>')</script>
 
 <script type="text/javascript">
 
@@ -63,5 +67,6 @@
   })();
 
 </script>
+<script src='/static/js/util/like.js'></script>
 </body>
 </html>

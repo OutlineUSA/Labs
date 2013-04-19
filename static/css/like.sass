@@ -1,0 +1,24 @@
+.like-btn
+  color: #fff
+  font-size: 18px !important
+  font-weight: bold
+  cursor: pointer
+  width: 50px
+  margin: 10px auto
+  background-color: #777
+  text-align: center
+  @include border-radius(3px)
+  padding: 8px 5px
+  @include transition(background-color, .3s)
+  font-family: Helvetica, Arial, sans-serif
+
+  .like-btn-heart, .like-btn-indicator
+    display: inline-block
+    padding: 0 2px
+  .like-btn-heart
+    font-family: verdana
+    font-size: 16px
+  &.user-liked, &:hover
+    background-color: #00baff
+  &:hover
+    @include transition(background-color, 1s)

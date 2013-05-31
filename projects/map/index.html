@@ -149,6 +149,7 @@
         //-------------------------------
         var updateMap = function updateMap(datum){
             var data = baseData[datum].data;
+            $template.html('');
 
             $('#title').html('<h1>' + baseData[datum].title + '</h1>');
 
@@ -212,9 +213,11 @@
                     formattedVal = '$' + d3.format(',.0f')( val );
 
                     //change formatting function based on item
-                    if(data === 'work_week' || datum === 'children'){
+                    if(datum === 'work_week' || datum === 'children'){
                         formattedVal = d3.format(',.2f')(val);
                     }
+                    if(datum === 'children'){ formattedVal += ' children'; }
+                    if(datum === 'work_week'){ formattedVal += ' hours / week'; }
 
                     //update template
                     $template.html(template({ 
@@ -227,6 +230,8 @@
                         'stroke-width': "3px"
                     });
                 });
+
+            //Set color
             paths.transition()
                 .duration(1000)
                 .attr({

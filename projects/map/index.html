@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+<head> 
+    <title>MA Map</title>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+    <style>
+        body, html {
+            font-family: Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        path {
+            stroke: #434143;
+        }
+        #meta {
+            background: #dfdfdf;
+            border: 1px solid #c0c0c0;
+            color: #434143;
+            height: 100px;
+            padding: 2px 8px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 200px;
+            z-index: 99;
+        }
+        #data_select {
+            position: absolute;
+            left: 8px;
+            top: 8px;
+        }
+        #title { 
+            position: absolute;
+            left: 290px;
+            top: 0;
+        }
+        /* COLOR scale */
+        .null { fill: #C77742; }
+        .q0-9 { fill:rgb(247,251,255); }
+        .q1-9 { fill:rgb(222,235,247); }
+        .q2-9 { fill:rgb(198,219,239); }
+        .q3-9 { fill:rgb(158,202,225); }
+        .q4-9 { fill:rgb(107,174,214); }
+        .q5-9 { fill:rgb(66,146,198); }
+        .q6-9 { fill:rgb(33,113,181); }
+        .q7-9 { fill:rgb(8,81,156); }
+        .q8-9 { fill:rgb(8,48,107); }
+    </style>
+</head>
+<body>
+    <div id='meta'></div>
+    <div id='title'></div>
+    <select id='data_select'>
+        <option name='avg_prop_value' 
+            value="average_property_value">Average Property Value</option>
+        <option name='avg_prop_value' 
+            value="agi">AGI - Average Gross Income</option>
+    </select>
+
+    <script type='text/template' id='meta_template'>
+        <h2><%= zip %></h2>
+        <h4><%= val %></h4>
+    </script>
+
+
+    <!-- Libs -->
+    <script src='/static/js/lib/d3.js'></script>
+    <script src='/static/js/lib/jquery.js'></script>
+    <script src='/static/js/lib/underscore.js'></script>
+    <script src='/static/js/lib/topojson.js'></script>
+
+    <!-- DATA -->
+    <script src='zips.js'></script>
+    <script src='data/average_prop_val.js'></script>
+    <script src='data/agi.js'></script>
+
+    <!-- CODE -->
+    <script>
+        //Configure data
+        var baseData = {
+            agi: {
+                data: agi,
+                title: 'Average Gross Income'
+            },
+            average_property_value: {
+                data: average_property_value,
+                title: 'Average Property Value'
+            }
+        };
+
+        var template = _.template($('#meta_template').html());
+        var $template = $('#meta')
+
+        var width = 1260,
+            height = 800;
+
+        var projection = d3.geo.mercator()
+            .scale(17280)
+            .center([-71.6,42])
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(projection)
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        function updateMap(datum){
+            svg.selectAll('g').remove();
+            var data = baseData[datum].data;
+
+            $('#title').html('<h1>' + baseData[datum].title + '</h1>');
+
+            var vals = d3.values(data);
+            var dataMax = d3.max(vals, function(d){
+                return d;
+            })
+
+            var color = d3.scale.linear()
+                .domain([0, d3.mean(vals), dataMax])
+                .range(['#f0f0f0', '#bdbdbd', '#636363'])
+
+            var color = d3.scale.quantize()
+                .domain([0, dataMax])
+                .range(d3.range(9).map(function(i) { 
+                    return "q" + i + "-9"; 
+                }));
+
+            svg.append("g")
+                .attr("class", "counties")
+                .selectAll("path")
+                .data(topojson.feature(zips, zips.objects.zips).features)
+                .enter().append("path")
+                    .attr({
+                        'class': function(d,i){
+                            var zip = d.properties.NAME;
+                            val = data[zip];
+                            if(!val){ 
+                                return 'null';
+                            }
+                            return color(val);
+                        },
+                        /*
+                        fill: function(d,i){
+                            var zip = d.properties.NAME;
+                            val = data[zip];
+                            if(!val){ 
+                                return "#336699";
+                            }
+                            return color(val);
+                        },
+                        */
+                        d: path
+                    })
+                    .on('mouseenter', function(d,i){
+                        var zip = d.properties.NAME;
+                        val = data[zip];
+
+                        $template.html(template({ 
+                            val: '$' + d3.format(',.0f')(Math.abs( val )),
+                            zip: zip 
+                        }));
+                    });
+        };
+
+        //When select changes, change data shown
+        $('#data_select').on('change', function(e){
+            updateMap(this.value);
+        });
+
+        //Load default data
+        updateMap('average_property_value');
+
+    </script>
+</body>
+</html>

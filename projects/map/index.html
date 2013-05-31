@@ -36,20 +36,25 @@
             top: 8px;
         }
         #title { 
+            background: #ffffff;
+            height: 40px;
             position: absolute;
-            left: 290px;
-            top: 0;
+            left: 10px;
+            top: 40px;
         }
+            #title h1 { margin: 0; padding: 2px 8px; } 
     </style>
 </head>
 <body>
     <div id='meta'></div>
     <div id='title'></div>
     <select id='data_select'>
-        <option value="average_property_value">Average Property Value</option>
         <option value="agi">AGI - Average Gross Income</option>
-        <option value="student_loan_interest">Student Loan Interest Deducation</option>
+        <option value="average_property_value">Average Property Value</option>
         <option value="royalties">Average Royalties Received</option>
+        <option value="work_week">Average Hours of Work Per Week</option>
+        <option value="children">Average Number of Claim Children</option>
+        <option value="student_loan_interest">Student Loan Interest Deducation</option>
         <option value="self_employ">Average Self Employment Income</option>
     </select>
 
@@ -78,11 +83,14 @@
     <script src='data/average_prop_val.js'></script>
     <script src='data/student_loan_interest.js'></script>
     <script src='data/royalties.js'></script>
+    <script src='data/children.js'></script>
     <script src='data/agi.js'></script>
     <script src='data/self_employ.js'></script>
+    <script src='data/work_week.js'></script>
 
     <!-- CODE -->
     <script>
+
         //Configure data
         var baseData = {
             agi: {
@@ -92,6 +100,10 @@
             average_property_value: {
                 data: average_property_value,
                 title: 'Average Property Value'
+            },
+            children: {
+                data: children,
+                title: 'Average Number of Claimed Children'
             },
             self_employ: {
                 data: self_employ,
@@ -105,6 +117,10 @@
                 data: royalties,
                 title: 'Average Royalties Received'
             },
+            work_week: {
+                data: work_week,
+                title: 'Average Hours of Work Per Week'
+            }
         };
 
         var template = _.template($('#meta_template').html());
@@ -128,7 +144,10 @@
         var chart = svg.append("g")
             .attr("class", "zipsGroup");
 
-        function updateMap(datum){
+        //-------------------------------
+        //Update map
+        //-------------------------------
+        var updateMap = function updateMap(datum){
             var data = baseData[datum].data;
 
             $('#title').html('<h1>' + baseData[datum].title + '</h1>');
@@ -138,14 +157,22 @@
                 return d;
             })
 
-            //OLD
-            /*
-            var color = d3.scale.linear()
+            //Color scale (NOTE: should not be a linear scale!)
+            var color = null, colors = null;
+
+            /* linear scale 
+            colors = [
+                "rgb(247,251,255)",
+                "rgb(158,202,225)",
+                "rgb(33,113,181)"
+            ];
+            color = d3.scale.linear()
                 .domain([0, d3.mean(vals), dataMax])
-                .range(['#f0f0f0', '#bdbdbd', '#636363'])
+                .range(colors);
             */
 
-            var colors = [
+            //Quantized scale
+            colors = [
                 "rgb(247,251,255)",
                 "rgb(222,235,247)",
                 "rgb(198,219,239)",
@@ -157,7 +184,7 @@
                 //"rgb(8,48,107)"
             ];
 
-            var color = d3.scale.quantize()
+            color = d3.scale.quantize()
                 .domain([0, dataMax])
                 .range(colors);
 
@@ -182,9 +209,16 @@
             paths.on('mouseenter', function(d,i){
                     var zip = d.properties.NAME;
                     val = data[zip];
+                    formattedVal = '$' + d3.format(',.0f')( val );
 
+                    //change formatting function based on item
+                    if(data === 'work_week' || datum === 'children'){
+                        formattedVal = d3.format(',.2f')(val);
+                    }
+
+                    //update template
                     $template.html(template({ 
-                        val: '$' + d3.format(',.0f')(Math.abs( val )),
+                        val: formattedVal,
                         zip: zip 
                     }));
 
@@ -214,18 +248,19 @@
             updateMap(this.value);
         });
 
-var zoom = d3.behavior.zoom()
-    .on("zoom",function() {
-        chart.attr("transform","translate("+ 
-            d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-        chart.selectAll("path")  
-            .attr("d", path.projection(projection)); 
-});
+        //SETUP ZOOM
+        var zoom = d3.behavior.zoom()
+            .on("zoom",function() {
+                chart.attr("transform","translate("+ 
+                    d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+                chart.selectAll("path")  
+                    .attr("d", path.projection(projection)); 
+        });
 
-svg.call(zoom)
+        svg.call(zoom)
 
         //Load default data
-        updateMap('average_property_value');
+        updateMap('agi');
 
     </script>
 </body>

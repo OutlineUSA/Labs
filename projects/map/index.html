@@ -13,6 +13,11 @@
         path {
             stroke: #434143;
         }
+        #loading {
+            color: #808080;
+            margin: 4em;
+            text-align: center;
+        }
         #meta {
             background: #dfdfdf;
             border: 1px solid #c0c0c0;
@@ -41,18 +46,27 @@
     <div id='meta'></div>
     <div id='title'></div>
     <select id='data_select'>
-        <option name='avg_prop_value' 
-            value="average_property_value">Average Property Value</option>
-        <option name='avg_prop_value' 
-            value="agi">AGI - Average Gross Income</option>
+        <option value="average_property_value">Average Property Value</option>
+        <option value="agi">AGI - Average Gross Income</option>
+        <option value="student_loan_interest">Student Loan Interest Deducation</option>
+        <option value="royalties">Average Royalties Received</option>
+        <option value="self_employ">Average Self Employment Income</option>
     </select>
 
+    <h1 id='loading'>Loading ... </h1>
+
+    <!-- TEMPLATE -->
     <script type='text/template' id='meta_template'>
-        <h2><%= zip %></h2>
+        <h2>Zip: <%= zip %></h2>
         <h4><%= val %></h4>
     </script>
 
 
+    <!-- =================================================================
+        
+        SCRIPTS
+
+        ================================================================== -->
     <!-- Libs -->
     <script src='/static/js/lib/d3.js'></script>
     <script src='/static/js/lib/jquery.js'></script>
@@ -62,7 +76,10 @@
     <!-- DATA -->
     <script src='zips.js'></script>
     <script src='data/average_prop_val.js'></script>
+    <script src='data/student_loan_interest.js'></script>
+    <script src='data/royalties.js'></script>
     <script src='data/agi.js'></script>
+    <script src='data/self_employ.js'></script>
 
     <!-- CODE -->
     <script>
@@ -75,7 +92,19 @@
             average_property_value: {
                 data: average_property_value,
                 title: 'Average Property Value'
-            }
+            },
+            self_employ: {
+                data: self_employ,
+                title: 'Average Self Employment Income'
+            },
+            student_loan_interest: {
+                data: student_loan_interest,
+                title: 'Average Student Loan Interest Deduction'
+            },
+            royalties: {
+                data: royalties,
+                title: 'Average Royalties Received'
+            },
         };
 
         var template = _.template($('#meta_template').html());
@@ -124,8 +153,8 @@
                 "rgb(107,174,214)",
                 "rgb(66,146,198)",
                 "rgb(33,113,181)",
-                "rgb(8,81,156)",
-                "rgb(8,48,107)"
+                //"rgb(8,81,156)",
+                //"rgb(8,48,107)"
             ];
 
             var color = d3.scale.quantize()
@@ -141,7 +170,16 @@
                     d: path,
                     fill: '#ffffff' 
                 })
-                .on('mouseenter', function(d,i){
+                .on('mouseleave', function(d,i){
+                    var $this = d3.select(this); 
+                    $this.style({ 
+                        stroke: "#343434",
+                        'stroke-width': "1px"
+                    });
+                });
+
+            //Update paths
+            paths.on('mouseenter', function(d,i){
                     var zip = d.properties.NAME;
                     val = data[zip];
 
@@ -154,16 +192,7 @@
                         stroke: "#ffffff",
                         'stroke-width': "3px"
                     });
-                })
-                .on('mouseleave', function(d,i){
-                    var $this = d3.select(this); 
-                    $this.style({ 
-                        stroke: "#343434",
-                        'stroke-width': "1px"
-                    });
                 });
-
-            //Update paths
             paths.transition()
                 .duration(1000)
                 .attr({
@@ -175,13 +204,25 @@
                         }
                         return color(val);
                     }
-                });
+                })
         };
+
+        $('#loading').remove();
 
         //When select changes, change data shown
         $('#data_select').on('change', function(e){
             updateMap(this.value);
         });
+
+var zoom = d3.behavior.zoom()
+    .on("zoom",function() {
+        chart.attr("transform","translate("+ 
+            d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+        chart.selectAll("path")  
+            .attr("d", path.projection(projection)); 
+});
+
+svg.call(zoom)
 
         //Load default data
         updateMap('average_property_value');

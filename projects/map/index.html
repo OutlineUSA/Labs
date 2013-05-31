@@ -35,17 +35,6 @@
             left: 290px;
             top: 0;
         }
-        /* COLOR scale */
-        .null { fill: #C77742; }
-        .q0-9 { fill:rgb(247,251,255); }
-        .q1-9 { fill:rgb(222,235,247); }
-        .q2-9 { fill:rgb(198,219,239); }
-        .q3-9 { fill:rgb(158,202,225); }
-        .q4-9 { fill:rgb(107,174,214); }
-        .q5-9 { fill:rgb(66,146,198); }
-        .q6-9 { fill:rgb(33,113,181); }
-        .q7-9 { fill:rgb(8,81,156); }
-        .q8-9 { fill:rgb(8,48,107); }
     </style>
 </head>
 <body>
@@ -107,8 +96,10 @@
             .attr("width", width)
             .attr("height", height);
 
+        var chart = svg.append("g")
+            .attr("class", "zipsGroup");
+
         function updateMap(datum){
-            svg.selectAll('g').remove();
             var data = baseData[datum].data;
 
             $('#title').html('<h1>' + baseData[datum].title + '</h1>');
@@ -118,51 +109,73 @@
                 return d;
             })
 
+            //OLD
+            /*
             var color = d3.scale.linear()
                 .domain([0, d3.mean(vals), dataMax])
                 .range(['#f0f0f0', '#bdbdbd', '#636363'])
+            */
+
+            var colors = [
+                "rgb(247,251,255)",
+                "rgb(222,235,247)",
+                "rgb(198,219,239)",
+                "rgb(158,202,225)",
+                "rgb(107,174,214)",
+                "rgb(66,146,198)",
+                "rgb(33,113,181)",
+                "rgb(8,81,156)",
+                "rgb(8,48,107)"
+            ];
 
             var color = d3.scale.quantize()
                 .domain([0, dataMax])
-                .range(d3.range(9).map(function(i) { 
-                    return "q" + i + "-9"; 
-                }));
+                .range(colors);
 
-            svg.append("g")
-                .attr("class", "counties")
-                .selectAll("path")
-                .data(topojson.feature(zips, zips.objects.zips).features)
-                .enter().append("path")
-                    .attr({
-                        'class': function(d,i){
-                            var zip = d.properties.NAME;
-                            val = data[zip];
-                            if(!val){ 
-                                return 'null';
-                            }
-                            return color(val);
-                        },
-                        /*
-                        fill: function(d,i){
-                            var zip = d.properties.NAME;
-                            val = data[zip];
-                            if(!val){ 
-                                return "#336699";
-                            }
-                            return color(val);
-                        },
-                        */
-                        d: path
-                    })
-                    .on('mouseenter', function(d,i){
+            //add zips
+            var paths = chart.selectAll("path")
+                .data(topojson.feature(zips, zips.objects.zips).features);
+
+            paths.enter().append("path")
+                .attr({ 
+                    d: path,
+                    fill: '#ffffff' 
+                })
+                .on('mouseenter', function(d,i){
+                    var zip = d.properties.NAME;
+                    val = data[zip];
+
+                    $template.html(template({ 
+                        val: '$' + d3.format(',.0f')(Math.abs( val )),
+                        zip: zip 
+                    }));
+
+                    d3.select(this).style({ 
+                        stroke: "#ffffff",
+                        'stroke-width': "3px"
+                    });
+                })
+                .on('mouseleave', function(d,i){
+                    var $this = d3.select(this); 
+                    $this.style({ 
+                        stroke: "#343434",
+                        'stroke-width': "1px"
+                    });
+                });
+
+            //Update paths
+            paths.transition()
+                .duration(1000)
+                .attr({
+                    fill: function(d,i){
                         var zip = d.properties.NAME;
                         val = data[zip];
-
-                        $template.html(template({ 
-                            val: '$' + d3.format(',.0f')(Math.abs( val )),
-                            zip: zip 
-                        }));
-                    });
+                        if(!val){ 
+                            return '#C77742';
+                        }
+                        return color(val);
+                    }
+                });
         };
 
         //When select changes, change data shown
